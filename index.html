@@ -1,0 +1,1248 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#0b1120" />
+  <title>MARK 1.5 // PA</title>
+  <style>
+    :root {
+      --bg: #0b1120;
+      --bg-card: #111827;
+      --bg-elevated: #1e293b;
+      --border: #263244;
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent-dark: #0284c7;
+      --user-bubble: #1d4ed8;
+      --ai-bubble: #162032;
+      --danger: #ef4444;
+      --success: #22c55e;
+      --warning: #f59e0b;
+    }
+    body.light {
+      --bg: #f1f5f9;
+      --bg-card: #ffffff;
+      --bg-elevated: #e2e8f0;
+      --border: #cbd5e1;
+      --text: #0f172a;
+      --text-muted: #475569;
+      --accent: #0284c7;
+      --accent-dark: #0369a1;
+      --user-bubble: #2563eb;
+      --ai-bubble: #ffffff;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { background: var(--bg); color: var(--text); height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
+
+    /* Header */
+    .header {
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    .brand-title { font-weight: 800; font-size: 15px; color: var(--accent); letter-spacing: 0.5px; }
+    .brand-clock { font-size: 11px; color: var(--text-muted); margin-top: 2px; font-variant-numeric: tabular-nums; }
+    .header-actions { display: flex; align-items: center; gap: 6px; }
+    .icon-btn {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 8px;
+      padding: 6px 9px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .live-btn {
+      background: rgba(239, 68, 68, 0.14);
+      border: 1px solid rgba(239, 68, 68, 0.45);
+      color: #fca5a5;
+      border-radius: 20px;
+      padding: 6px 11px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.2s;
+    }
+    .live-btn.active {
+      background: rgba(34, 197, 94, 0.2);
+      border-color: #22c55e;
+      color: #86efac;
+      box-shadow: 0 0 12px rgba(34, 197, 94, 0.35);
+    }
+    .live-dot { width: 8px; height: 8px; border-radius: 50%; background: #ef4444; }
+    .live-btn.active .live-dot { background: #22c55e; animation: pulse 1.2s infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(1.3); } }
+
+    /* Quick Bar */
+    .quick-bar {
+      display: flex;
+      gap: 6px;
+      padding: 7px 10px;
+      overflow-x: auto;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+      scrollbar-width: none;
+    }
+    .quick-bar::-webkit-scrollbar { display: none; }
+    .chip {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 5px 10px;
+      border-radius: 16px;
+      font-size: 12px;
+      white-space: nowrap;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .chip:active { transform: scale(0.96); }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      overflow-x: auto;
+      flex-shrink: 0;
+      scrollbar-width: none;
+    }
+    .tabs::-webkit-scrollbar { display: none; }
+    .tab {
+      flex: 1;
+      min-width: 74px;
+      padding: 9px 6px;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .tab.active { color: var(--accent); border-bottom-color: var(--accent); background: rgba(56, 189, 248, 0.06); }
+    .badge {
+      background: var(--accent-dark);
+      color: #fff;
+      font-size: 10px;
+      padding: 1px 5px;
+      border-radius: 10px;
+      margin-left: 2px;
+    }
+
+    /* Views */
+    .view { display: none; flex: 1; overflow-y: auto; flex-direction: column; }
+    .view.active { display: flex; }
+
+    /* Chat View */
+    .chat-box { flex: 1; padding: 12px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+    .msg { max-width: 86%; padding: 10px 13px; border-radius: 14px; font-size: 14px; line-height: 1.5; word-wrap: break-word; }
+    .msg.ai { align-self: flex-start; background: var(--ai-bubble); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
+    .msg.user { align-self: flex-end; background: var(--user-bubble); color: #fff; border-bottom-right-radius: 4px; }
+    .msg.error { border-color: rgba(245, 158, 11, 0.5); background: rgba(245, 158, 11, 0.1); }
+    .msg-img { max-width: 100%; border-radius: 8px; margin-bottom: 6px; display: block; }
+    .msg-footer { display: flex; justify-content: flex-end; align-items: center; gap: 8px; margin-top: 6px; font-size: 11px; opacity: 0.8; }
+    .speak-mini {
+      background: rgba(56, 189, 248, 0.15);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      color: var(--accent);
+      padding: 2px 7px;
+      border-radius: 6px;
+      font-size: 11px;
+      cursor: pointer;
+    }
+
+    /* Status & Input Bar */
+    .status-strip {
+      padding: 4px 12px;
+      font-size: 11.5px;
+      color: var(--accent);
+      background: var(--bg);
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
+    }
+    .img-preview-bar {
+      display: none;
+      padding: 6px 12px;
+      background: var(--bg-card);
+      border-top: 1px solid var(--border);
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+    }
+    .input-bar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 10px;
+      background: var(--bg-card);
+      border-top: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .chat-input {
+      flex: 1;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 20px;
+      font-size: 14px;
+      outline: none;
+    }
+    .round-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: none;
+      background: var(--bg-elevated);
+      color: var(--text);
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .round-btn.primary { background: var(--accent); color: #0b1120; font-weight: bold; }
+    .round-btn.recording { background: var(--danger); color: #fff; animation: pulse 1s infinite; }
+
+    /* Cards & Forms for Other Tabs */
+    .panel { padding: 14px; display: flex; flex-direction: column; gap: 12px; }
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+    }
+    .card-title { font-size: 14px; font-weight: 700; color: var(--accent); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+    .form-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .inp {
+      flex: 1;
+      min-width: 110px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 9px 10px;
+      border-radius: 8px;
+      font-size: 13px;
+      outline: none;
+    }
+    .btn {
+      background: var(--accent);
+      color: #0b1120;
+      border: none;
+      padding: 9px 14px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .btn.secondary { background: var(--bg-elevated); color: var(--text); border: 1px solid var(--border); }
+    .btn.danger { background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.4); }
+
+    /* List items */
+    .item-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 9px 10px;
+      background: var(--bg-elevated);
+      border-radius: 8px;
+      margin-top: 6px;
+      font-size: 13px;
+    }
+    .item-row.done { opacity: 0.55; text-decoration: line-through; }
+
+    /* Counter */
+    .big-num { font-size: 38px; font-weight: 800; text-align: center; color: var(--accent); margin: 6px 0; font-variant-numeric: tabular-nums; }
+    .progress-track { height: 10px; background: var(--bg-elevated); border-radius: 99px; overflow: hidden; margin: 8px 0; }
+    .progress-fill { height: 100%; background: var(--success); width: 0%; transition: width 0.25s; }
+
+    /* Calendar */
+    .cal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; }
+    .cal-day-name { font-size: 11px; color: var(--text-muted); padding: 4px 0; font-weight: 700; }
+    .cal-cell {
+      aspect-ratio: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      font-size: 13px;
+      background: var(--bg-elevated);
+      cursor: pointer;
+      position: relative;
+      border: 1px solid transparent;
+    }
+    .cal-cell.empty { background: transparent; cursor: default; }
+    .cal-cell.today { border-color: var(--accent); color: var(--accent); font-weight: 800; }
+    .cal-cell.selected { background: var(--accent); color: #0b1120; font-weight: 800; }
+    .cal-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--warning); position: absolute; bottom: 4px; }
+    .cal-cell.selected .cal-dot { background: #0b1120; }
+
+    /* Calculator */
+    .calc-display {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      text-align: right;
+      margin-bottom: 10px;
+    }
+    .calc-exp { font-size: 13px; color: var(--text-muted); min-height: 18px; word-break: break-all; }
+    .calc-res { font-size: 28px; font-weight: 800; color: var(--text); margin-top: 4px; word-break: break-all; font-variant-numeric: tabular-nums; }
+    .calc-keys { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; }
+    .ckey {
+      padding: 14px 6px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg-elevated);
+      color: var(--text);
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .ckey:active { transform: scale(0.95); }
+    .ckey.op { color: var(--accent); background: rgba(56, 189, 248, 0.1); }
+    .ckey.eq { background: var(--accent); color: #0b1120; }
+    .ckey.ac { color: #fca5a5; background: rgba(239, 68, 68, 0.15); }
+
+    /* Modal */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.72);
+      z-index: 50;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      width: 100%;
+      max-width: 400px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .field-label { font-size: 12px; color: var(--text-muted); margin-bottom: 4px; display: block; }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="header">
+    <div>
+      <div class="brand-title">MARK 1.5 // PA</div>
+      <div class="brand-clock" id="liveClock">--:--:--</div>
+    </div>
+    <div class="header-actions">
+      <button class="live-btn" id="liveToggleBtn" onclick="toggleLiveMode()">
+        <span class="live-dot"></span>
+        <span id="liveToggleText">LIVE অফ</span>
+      </button>
+      <button class="icon-btn" id="langBtn" onclick="toggleLang()">বাং</button>
+      <button class="icon-btn" onclick="toggleTheme()">☀️</button>
+      <button class="icon-btn" onclick="openSettings()">⚙️</button>
+    </div>
+  </div>
+
+  <!-- Quick Bar -->
+  <div class="quick-bar">
+    <button class="chip" onclick="window.open('tel:')">📞 কল</button>
+    <button class="chip" onclick="window.open('https://wa.me/', '_blank')">💬 WhatsApp</button>
+    <button class="chip" onclick="window.open('https://m.youtube.com', '_blank')">▶️ YouTube</button>
+    <button class="chip" onclick="switchTab('schedule')">🗓️ রুটিন সেট</button>
+    <button class="chip" onclick="switchTab('calendar')">📅 ক্যালেন্ডার</button>
+    <button class="chip" onclick="switchTab('calc')">🧮 ক্যালকুলেটর</button>
+    <button class="chip" onclick="clearChat()">🧹 ক্লিয়ার</button>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <div class="tab active" id="tab-chat" onclick="switchTab('chat')">🎙️ জেমিনাই</div>
+    <div class="tab" id="tab-schedule" onclick="switchTab('schedule')">📅 শিডিউল <span class="badge" id="schedBadge">0</span></div>
+    <div class="tab" id="tab-counter" onclick="switchTab('counter')">🎯 কাউন্টার <span class="badge" id="countBadge">0</span></div>
+    <div class="tab" id="tab-calendar" onclick="switchTab('calendar')">📆 ক্যালেন্ডার</div>
+    <div class="tab" id="tab-calc" onclick="switchTab('calc')">🧮 ক্যালকুলেটর</div>
+  </div>
+
+  <!-- VIEW 1: CHAT -->
+  <div class="view active" id="view-chat">
+    <div class="chat-box" id="chatBox"></div>
+    <div class="status-strip">
+      <span id="statusText">প্রস্তুত আছি — কথা বলার জন্য LIVE অন করুন বা লিখুন</span>
+      <span id="activeModelTag" style="opacity:0.75;">3.8-flash</span>
+    </div>
+    <div class="img-preview-bar" id="imgPreviewBar">
+      <span id="imgFileName">📷 ছবি সংযুক্ত হয়েছে</span>
+      <button class="speak-mini" onclick="clearAttachedImage()">✕ বাদ দিন</button>
+    </div>
+    <div class="input-bar">
+      <input type="file" id="imgInput" accept="image/*" style="display:none" onchange="handleImageUpload(event)" />
+      <button class="round-btn" onclick="document.getElementById('imgInput').click()" title="ছবি তুলুন বা আপলোড করুন">📷</button>
+      <input type="text" class="chat-input" id="userInput" placeholder="প্রশ্ন করুন, অঙ্ক জিজ্ঞাসা করুন..." onkeydown="if(event.key==='Enter') sendMessage()" />
+      <button class="round-btn primary" onclick="sendMessage()">➤</button>
+      <button class="round-btn" id="micBtn" onclick="toggleSingleMic()">🎤</button>
+    </div>
+  </div>
+
+  <!-- VIEW 2: SCHEDULE -->
+  <div class="view" id="view-schedule">
+    <div class="panel">
+      <div class="card">
+        <div class="card-title">⏰ নতুন রুটিন / রিমাইন্ডার যোগ করুন</div>
+        <div class="form-row">
+          <input type="time" class="inp" id="schedTime" style="max-width:125px;" />
+          <input type="text" class="inp" id="schedTitle" placeholder="যেমন: অ্যাকাউন্টেন্সি রিভিশন" />
+          <button class="btn" onclick="addScheduleItem()">যোগ করুন</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">
+          <span>📋 আজকের শিডিউল তালিকা</span>
+          <button class="speak-mini" onclick="speakScheduleSummary()">🔊 পড়ে শোনান</button>
+        </div>
+        <div id="scheduleList"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VIEW 3: COUNTER -->
+  <div class="view" id="view-counter">
+    <div class="panel">
+      <div class="card">
+        <div class="card-title">🎯 স্টাডি / অঙ্ক টার্গেট সেট করুন</div>
+        <div class="form-row">
+          <input type="text" class="inp" id="targetSubject" placeholder="বিষয় (যেমন: Accountancy)" />
+          <input type="number" class="inp" id="targetGoal" placeholder="মোট সংখ্যা (যেমন: 50)" style="max-width:130px;" />
+          <button class="btn" onclick="setCounterGoal()">সেট</button>
+        </div>
+      </div>
+      <div class="card" style="text-align:center;">
+        <div id="counterLabel" style="font-size:13px; color:var(--text-muted);">কোনো টার্গেট সেট করা নেই</div>
+        <div class="big-num"><span id="counterDone">0</span> / <span id="counterTotal">0</span></div>
+        <div class="progress-track"><div class="progress-fill" id="counterBar"></div></div>
+        <div style="font-size:13px; color:var(--warning); margin:8px 0;" id="timerDisplay">⏱️ সেশন টাইমার: 00:00:00</div>
+        <div class="form-row" style="justify-content:center; margin-top:10px;">
+          <button class="btn" onclick="incrementCounter(1)">+১ সম্পন্ন</button>
+          <button class="btn secondary" onclick="incrementCounter(5)">+৫ সম্পন্ন</button>
+          <button class="btn secondary" id="timerBtn" onclick="toggleTimer()">▶️ টাইমার চালু</button>
+          <button class="btn danger" onclick="resetCounter()">রিসেট</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VIEW 4: CALENDAR -->
+  <div class="view" id="view-calendar">
+    <div class="panel">
+      <div class="card">
+        <div class="cal-header">
+          <button class="icon-btn" onclick="changeCalMonth(-1)">◀</button>
+          <div style="font-weight:800; font-size:15px;" id="calMonthYear">Month Year</div>
+          <div style="display:flex; gap:5px;">
+            <button class="icon-btn" onclick="goCalToday()">আজ</button>
+            <button class="icon-btn" onclick="changeCalMonth(1)">▶</button>
+          </div>
+        </div>
+        <div class="cal-grid" id="calGrid"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">📌 <span id="selectedDateLabel">নির্বাচিত তারিখ</span>-এর ইভেন্ট ও নোট</div>
+        <div class="form-row">
+          <input type="text" class="inp" id="calEventInput" placeholder="পরীক্ষা, ক্লাস বা কাজের নোট লিখুন..." />
+          <button class="btn" onclick="addCalendarEvent()">সেভ</button>
+        </div>
+        <div id="calEventList" style="margin-top:8px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VIEW 5: CALCULATOR -->
+  <div class="view" id="view-calc">
+    <div class="panel">
+      <div class="card">
+        <div class="card-title">
+          <span>🧮 স্মার্ট কমার্স ক্যালকুলেটর</span>
+          <button class="speak-mini" onclick="sendCalcToChat()">📤 চ্যাটে পাঠান</button>
+        </div>
+        <div class="calc-display">
+          <div class="calc-exp" id="calcExp"></div>
+          <div class="calc-res" id="calcRes">0</div>
+        </div>
+        <div class="calc-keys">
+          <button class="ckey ac" onclick="calcClear()">AC</button>
+          <button class="ckey op" onclick="calcBack()">⌫</button>
+          <button class="ckey op" onclick="calcAppend('%')">%</button>
+          <button class="ckey op" onclick="calcAppend('/')">÷</button>
+
+          <button class="ckey" onclick="calcAppend('7')">7</button>
+          <button class="ckey" onclick="calcAppend('8')">8</button>
+          <button class="ckey" onclick="calcAppend('9')">9</button>
+          <button class="ckey op" onclick="calcAppend('*')">×</button>
+
+          <button class="ckey" onclick="calcAppend('4')">4</button>
+          <button class="ckey" onclick="calcAppend('5')">5</button>
+          <button class="ckey" onclick="calcAppend('6')">6</button>
+          <button class="ckey op" onclick="calcAppend('-')">−</button>
+
+          <button class="ckey" onclick="calcAppend('1')">1</button>
+          <button class="ckey" onclick="calcAppend('2')">2</button>
+          <button class="ckey" onclick="calcAppend('3')">3</button>
+          <button class="ckey op" onclick="calcAppend('+')">+</button>
+
+          <button class="ckey" onclick="calcAppend('00')">00</button>
+          <button class="ckey" onclick="calcAppend('0')">0</button>
+          <button class="ckey" onclick="calcAppend('.')">.</button>
+          <button class="ckey eq" onclick="calcEval()">=</button>
+
+          <button class="ckey op" style="font-size:12px;" onclick="calcPercentOp(1.18)">+18% GST</button>
+          <button class="ckey op" style="font-size:12px;" onclick="calcPercentOp(1/1.18)">-18% GST</button>
+          <button class="ckey op" style="font-size:13px;" onclick="calcSqrt()">√x</button>
+          <button class="ckey op" style="font-size:13px;" onclick="calcSquare()">x²</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SETTINGS MODAL -->
+  <div class="modal-backdrop" id="settingsModal">
+    <div class="modal-box">
+      <div style="font-size:16px; font-weight:800; color:var(--accent);">⚙️ Mark 1.5 সেটিংস</div>
+      <div>
+        <label class="field-label">আপনার নাম (যে নামে অ্যাসিস্ট্যান্ট ডাকবে)</label>
+        <input type="text" class="inp" id="cfgName" style="width:100%;" placeholder="স্যার" />
+      </div>
+      <div>
+        <label class="field-label">Gemini API Key (শুধু আপনার ফোনেই সেভ থাকবে)</label>
+        <input type="password" class="inp" id="cfgKey" style="width:100%;" placeholder="AIza... বা AQ..." />
+      </div>
+      <div>
+        <label class="field-label">AI মডেল (অটো-রিট্রাই সাপোর্টেড)</label>
+        <select class="inp" id="cfgModel" style="width:100%;">
+          <option value="gemini-3.8-flash">Gemini 3.8 Flash (সেরা ও স্মার্ট)</option>
+          <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
+          <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
+          <option value="gemini-2.5-pro">Gemini 2.5 Pro</option>
+        </select>
+      </div>
+      <div>
+        <label class="field-label">কাস্টম মডেল নাম (ঐচ্ছিক — খালি রাখলে ওপরেরটা চলবে)</label>
+        <input type="text" class="inp" id="cfgCustomModel" style="width:100%;" placeholder="যেমন: gemini-3.8-flash" />
+      </div>
+      <div class="form-row" style="justify-content:flex-end; margin-top:4px;">
+        <button class="btn secondary" onclick="closeSettings()">বন্ধ করুন</button>
+        <button class="btn" onclick="saveSettings()">সেভ করুন</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // --- STATE & STORAGE ---
+  let config = JSON.parse(localStorage.getItem('m15_config') || 'null') || {
+    name: 'স্যার',
+    apiKey: '',
+    model: 'gemini-3.8-flash',
+    customModel: '',
+    lang: 'bn'
+  };
+  let schedules = JSON.parse(localStorage.getItem('m15_schedules') || '[]');
+  let counter = JSON.parse(localStorage.getItem('m15_counter') || '{"subject":"","done":0,"total":0,"seconds":0}');
+  let calEvents = JSON.parse(localStorage.getItem('m15_calevents') || '{}');
+  let chatHistory = [];
+  let attachedImageBase64 = null;
+
+  // Live Voice & Speech Recognition State
+  let isLiveMode = false;
+  let isListening = false;
+  let isSpeaking = false;
+  let recognition = null;
+
+  // Calendar State
+  let calDate = new Date();
+  let selectedDateStr = formatDateKey(new Date());
+
+  // Timer State
+  let timerInterval = null;
+
+  // --- INIT ---
+  window.onload = () => {
+    updateClock();
+    setInterval(updateClock, 1000);
+    setInterval(checkScheduleReminders, 15000);
+
+    document.getElementById('langBtn').innerText = config.lang === 'bn' ? 'বাং' : 'EN';
+    updateActiveModelTag();
+    renderSchedules();
+    renderCounter();
+    renderCalendar();
+    initSpeechRecognition();
+
+    addMessage('ai', `নমস্কার ${config.name}। আমি আপনার আপগ্রেডেড **Mark 1.5** অ্যাসিস্ট্যান্ট।\n\n• ওপরে **LIVE অফ** বাটনে ট্যাপ করে **LIVE অন** করলে আমি হ্যান্ডস-ফ্রি মোডে নিজে থেকেই কথা বলব ও আপনার কথা শুনব।\n• সার্ভারে চাপ থাকলে আমি নিজে থেকেই অটো-রিট্রাই করে উত্তর আনব।\n• নতুন **ক্যালেন্ডার** ও **ক্যালকুলেটর** ট্যাবও যুক্ত হয়েছে।`);
+
+    if (!config.apiKey) openSettings();
+  };
+
+  function updateClock() {
+    const now = new Date();
+    document.getElementById('liveClock').innerText = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  }
+
+  function setStatus(txt) {
+    document.getElementById('statusText').innerText = txt;
+  }
+
+  function updateActiveModelTag() {
+    const m = (config.customModel || config.model).replace('gemini-', '');
+    document.getElementById('activeModelTag').innerText = m;
+  }
+
+  // --- TABS & THEME ---
+  function switchTab(name) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    document.getElementById('view-' + name).classList.add('active');
+  }
+
+  function toggleTheme() {
+    document.body.classList.toggle('light');
+  }
+
+  function toggleLang() {
+    config.lang = config.lang === 'bn' ? 'en' : 'bn';
+    localStorage.setItem('m15_config', JSON.stringify(config));
+    document.getElementById('langBtn').innerText = config.lang === 'bn' ? 'বাং' : 'EN';
+    if (recognition) recognition.lang = config.lang === 'bn' ? 'bn-IN' : 'en-IN';
+    setStatus(config.lang === 'bn' ? 'ভাষা: বাংলা সেট করা হয়েছে' : 'Language set to English');
+  }
+
+  // --- SETTINGS ---
+  function openSettings() {
+    document.getElementById('cfgName').value = config.name || 'স্যার';
+    document.getElementById('cfgKey').value = config.apiKey || '';
+    document.getElementById('cfgModel').value = config.model || 'gemini-3.8-flash';
+    document.getElementById('cfgCustomModel').value = config.customModel || '';
+    document.getElementById('settingsModal').classList.add('open');
+  }
+  function closeSettings() {
+    document.getElementById('settingsModal').classList.remove('open');
+  }
+  function saveSettings() {
+    config.name = document.getElementById('cfgName').value.trim() || 'স্যার';
+    config.apiKey = document.getElementById('cfgKey').value.trim();
+    config.model = document.getElementById('cfgModel').value;
+    config.customModel = document.getElementById('cfgCustomModel').value.trim();
+    localStorage.setItem('m15_config', JSON.stringify(config));
+    updateActiveModelTag();
+    closeSettings();
+    setStatus('সেটিংস সেভ হয়েছে।');
+  }
+
+  // --- LIVE VOICE & SPEECH RECOGNITION ---
+  function initSpeechRecognition() {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) {
+      setStatus('এই ব্রাউজারে ভয়েস ইনপুট সাপোর্ট নেই (Chrome ব্যবহার করুন)');
+      return;
+    }
+    recognition = new SR();
+    recognition.lang = config.lang === 'bn' ? 'bn-IN' : 'en-IN';
+    recognition.interimResults = false;
+    recognition.continuous = false;
+
+    recognition.onstart = () => {
+      isListening = true;
+      document.getElementById('micBtn').classList.add('recording');
+      setStatus(isLiveMode ? '🟢 LIVE শুনছি... কথা বলুন' : '🎤 শুনছি... কথা বলুন');
+    };
+
+    recognition.onresult = (e) => {
+      const transcript = e.results[0][0].transcript;
+      document.getElementById('userInput').value = transcript;
+      sendMessage();
+    };
+
+    recognition.onerror = (e) => {
+      isListening = false;
+      document.getElementById('micBtn').classList.remove('recording');
+      if (isLiveMode && !isSpeaking && (e.error === 'no-speech' || e.error === 'aborted')) {
+        setTimeout(() => { if (isLiveMode && !isSpeaking) startListeningSafe(); }, 500);
+      } else if (e.error !== 'aborted') {
+        setStatus('মাইক এরর: ' + e.error);
+      }
+    };
+
+    recognition.onend = () => {
+      isListening = false;
+      document.getElementById('micBtn').classList.remove('recording');
+    };
+  }
+
+  function startListeningSafe() {
+    if (!recognition || isListening || isSpeaking) return;
+    try {
+      recognition.lang = config.lang === 'bn' ? 'bn-IN' : 'en-IN';
+      recognition.start();
+    } catch (err) {}
+  }
+
+  function stopListeningSafe() {
+    if (!recognition) return;
+    try { recognition.abort(); } catch (e) {}
+    isListening = false;
+    document.getElementById('micBtn').classList.remove('recording');
+  }
+
+  function toggleLiveMode() {
+    isLiveMode = !isLiveMode;
+    const btn = document.getElementById('liveToggleBtn');
+    const txt = document.getElementById('liveToggleText');
+
+    if (isLiveMode) {
+      btn.classList.add('active');
+      txt.innerText = 'LIVE অন';
+      // Unlock Chrome audio synthesis inside user click gesture
+      speakText(config.lang === 'bn' ? 'লাইভ মোড চালু হয়েছে, বলুন।' : 'Live mode active.', () => {
+        if (isLiveMode) startListeningSafe();
+      });
+    } else {
+      btn.classList.remove('active');
+      txt.innerText = 'LIVE অফ';
+      window.speechSynthesis.cancel();
+      isSpeaking = false;
+      stopListeningSafe();
+      setStatus('LIVE মোড বন্ধ করা হয়েছে।');
+    }
+  }
+
+  function toggleSingleMic() {
+    if (isListening) {
+      stopListeningSafe();
+      setStatus('মাইক বন্ধ করা হয়েছে।');
+    } else {
+      window.speechSynthesis.cancel();
+      isSpeaking = false;
+      startListeningSafe();
+    }
+  }
+
+  function speakText(text, onDoneCallback) {
+    if (!('speechSynthesis' in window)) {
+      if (onDoneCallback) onDoneCallback();
+      return;
+    }
+    window.speechSynthesis.cancel();
+    stopListeningSafe();
+
+    // Clean markdown symbols before speaking
+    const cleanText = text.replace(/[*#_`~]/g, '').replace(/\|\|\|ACTION:.*?\|\|\|/g, '').trim();
+    if (!cleanText) {
+      if (onDoneCallback) onDoneCallback();
+      return;
+    }
+
+    const utter = new SpeechSynthesisUtterance(cleanText);
+    utter.lang = /[\u0980-\u09FF]/.test(cleanText) ? 'bn-IN' : 'en-IN';
+    utter.rate = 1.02;
+
+    isSpeaking = true;
+    setStatus('🔊 কথা বলছি...');
+
+    utter.onend = () => {
+      isSpeaking = false;
+      setStatus(isLiveMode ? '🟢 LIVE প্রস্তুত — বলুন' : 'প্রস্তুত আছি');
+      if (onDoneCallback) {
+        onDoneCallback();
+      } else if (isLiveMode) {
+        setTimeout(() => { if (isLiveMode && !isSpeaking) startListeningSafe(); }, 450);
+      }
+    };
+
+    utter.onerror = () => {
+      isSpeaking = false;
+      if (onDoneCallback) onDoneCallback();
+      else if (isLiveMode) setTimeout(() => startListeningSafe(), 500);
+    };
+
+    window.speechSynthesis.speak(utter);
+  }
+
+  // --- IMAGE UPLOAD ---
+  function handleImageUpload(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const maxDim = 1024;
+        let w = img.width, h = img.height;
+        if (w > maxDim || h > maxDim) {
+          if (w > h) { h = Math.round(h * maxDim / w); w = maxDim; }
+          else { w = Math.round(w * maxDim / h); h = maxDim; }
+        }
+        canvas.width = w;
+        canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.82);
+        attachedImageBase64 = dataUrl.split(',')[1];
+        document.getElementById('imgPreviewBar').style.display = 'flex';
+        document.getElementById('imgFileName').innerText = '📷 ' + file.name;
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function clearAttachedImage() {
+    attachedImageBase64 = null;
+    document.getElementById('imgInput').value = '';
+    document.getElementById('imgPreviewBar').style.display = 'none';
+  }
+
+  // --- CHAT & AUTO-RETRY GEMINI API ---
+  function addMessage(sender, text, isError = false, imgDataUrl = null) {
+    const box = document.getElementById('chatBox');
+    const div = document.createElement('div');
+    div.className = `msg ${sender}` + (isError ? ' error' : '');
+
+    if (imgDataUrl) {
+      const img = document.createElement('img');
+      img.src = imgDataUrl;
+      img.className = 'msg-img';
+      div.appendChild(img);
+    }
+
+    const content = document.createElement('div');
+    content.innerHTML = text.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+    div.appendChild(content);
+
+    const footer = document.createElement('div');
+    footer.className = 'msg-footer';
+    if (sender === 'ai') {
+      const spBtn = document.createElement('button');
+      spBtn.className = 'speak-mini';
+      spBtn.innerText = '🔊 শুনুন';
+      spBtn.onclick = () => speakText(text);
+      footer.appendChild(spBtn);
+    }
+    const timeSpan = document.createElement('span');
+    timeSpan.innerText = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    footer.appendChild(timeSpan);
+    div.appendChild(footer);
+
+    box.appendChild(div);
+    box.scrollTop = box.scrollHeight;
+  }
+
+  function clearChat() {
+    document.getElementById('chatBox').innerHTML = '';
+    chatHistory = [];
+    setStatus('চ্যাট পরিষ্কার করা হয়েছে।');
+  }
+
+  async function callGeminiWithAutoRetry(modelName, payload, maxRetries = 4) {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${encodeURIComponent(config.apiKey)}`;
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          const errMsg = data?.error?.message || `HTTP ${res.status}`;
+          const isTransient = res.status === 429 || res.status >= 500 || /high demand|overloaded|temporarily|try again/i.test(errMsg);
+          if (isTransient && attempt < maxRetries) {
+            setStatus(`⏳ সার্ভারে চাপ আছে, অটো-রিট্রাই চলছে (${attempt}/${maxRetries})...`);
+            await new Promise(r => setTimeout(r, 2000));
+            continue;
+          }
+          throw new Error(errMsg);
+        }
+
+        const replyText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (!replyText) throw new Error('মডেল থেকে কোনো উত্তর পাওয়া যায়নি।');
+        return replyText;
+      } catch (err) {
+        if (attempt < maxRetries && /fetch|network|high demand|overloaded|429|503/i.test(err.message)) {
+          setStatus(`⏳ পুনরায় চেষ্টা চলছে (${attempt}/${maxRetries})...`);
+          await new Promise(r => setTimeout(r, 2000));
+          continue;
+        }
+        throw err;
+      }
+    }
+  }
+
+  async function sendMessage() {
+    const inp = document.getElementById('userInput');
+    const text = inp.value.trim();
+    if (!text && !attachedImageBase64) return;
+
+    if (!config.apiKey) {
+      openSettings();
+      setStatus('আগে সেটিংসে API Key বসান।');
+      return;
+    }
+
+    stopListeningSafe();
+    const imgToSend = attachedImageBase64;
+    const previewUrl = imgToSend ? 'data:image/jpeg;base64,' + imgToSend : null;
+
+    addMessage('user', text || '📷 [ছবি পাঠানো হয়েছে]', false, previewUrl);
+    inp.value = '';
+    clearAttachedImage();
+
+    const userParts = [];
+    if (text) userParts.push({ text });
+    if (imgToSend) userParts.push({ inlineData: { mimeType: 'image/jpeg', data: imgToSend } });
+
+    chatHistory.push({ role: 'user', parts: userParts });
+    if (chatHistory.length > 10) chatHistory = chatHistory.slice(-10);
+
+    const sysPrompt = `You are Mark 1.5, a smart, concise personal assistant for ${config.name} (a Class 12 Commerce & Accountancy student). Reply naturally in ${config.lang === 'bn' ? 'Bengali' : 'English'}. Keep voice answers crisp and practical.
+If the user asks to set a schedule/reminder, append at the very end: |||ACTION:{"type":"schedule","time":"HH:MM","title":"task"}|||
+If the user asks to set a study/math target counter, append: |||ACTION:{"type":"counter","subject":"name","total":50}|||
+If the user asks to add a calendar event on a date (YYYY-MM-DD, today is ${formatDateKey(new Date())}), append: |||ACTION:{"type":"calendar","date":"YYYY-MM-DD","title":"event"}|||`;
+
+    const payload = {
+      systemInstruction: { parts: [{ text: sysPrompt }] },
+      contents: chatHistory
+    };
+
+    const chosenModel = config.customModel || config.model || 'gemini-3.8-flash';
+    setStatus('💭 ভাবছি...');
+
+    try {
+      const rawReply = await callGeminiWithAutoRetry(chosenModel, payload, 4);
+      const cleanReply = processAssistantActions(rawReply);
+
+      chatHistory.push({ role: 'model', parts: [{ text: cleanReply }] });
+      addMessage('ai', cleanReply);
+      setStatus('প্রস্তুত আছি');
+
+      if (isLiveMode) {
+        speakText(cleanReply);
+      }
+    } catch (err) {
+      addMessage('ai', `⚠️ কানেকশন এরর: ${err.message}`, true);
+      setStatus('এরর হয়েছে');
+      if (isLiveMode) {
+        setTimeout(() => { if (isLiveMode) startListeningSafe(); }, 1200);
+      }
+    }
+  }
+
+  function processAssistantActions(reply) {
+    const match = reply.match(/\|\|\|ACTION:(.*?)\|\|\|/);
+    if (match) {
+      try {
+        const act = JSON.parse(match[1]);
+        if (act.type === 'schedule' && act.title) {
+          schedules.push({ id: Date.now(), time: act.time || '18:00', title: act.title, done: false, alerted: false });
+          saveSchedules();
+        } else if (act.type === 'counter' && act.total) {
+          counter = { subject: act.subject || 'Practice', done: 0, total: Number(act.total), seconds: 0 };
+          saveCounter();
+        } else if (act.type === 'calendar' && act.date && act.title) {
+          if (!calEvents[act.date]) calEvents[act.date] = [];
+          calEvents[act.date].push(act.title);
+          localStorage.setItem('m15_calevents', JSON.stringify(calEvents));
+          renderCalendar();
+        }
+      } catch (e) {}
+      return reply.replace(/\|\|\|ACTION:.*?\|\|\|/g, '').trim();
+    }
+    return reply;
+  }
+
+  // --- SCHEDULE ---
+  function saveSchedules() {
+    localStorage.setItem('m15_schedules', JSON.stringify(schedules));
+    renderSchedules();
+  }
+  function addScheduleItem() {
+    const time = document.getElementById('schedTime').value || '18:00';
+    const title = document.getElementById('schedTitle').value.trim();
+    if (!title) return;
+    schedules.push({ id: Date.now(), time, title, done: false, alerted: false });
+    document.getElementById('schedTitle').value = '';
+    saveSchedules();
+  }
+  function toggleScheduleDone(id) {
+    const item = schedules.find(s => s.id === id);
+    if (item) item.done = !item.done;
+    saveSchedules();
+  }
+  function deleteSchedule(id) {
+    schedules = schedules.filter(s => s.id !== id);
+    saveSchedules();
+  }
+  function renderSchedules() {
+    const list = document.getElementById('scheduleList');
+    schedules.sort((a, b) => a.time.localeCompare(b.time));
+    document.getElementById('schedBadge').innerText = schedules.filter(s => !s.done).length;
+    if (!schedules.length) {
+      list.innerHTML = '<div style="font-size:12px; color:var(--text-muted); margin-top:6px;">এখনো কোনো রুটিন সেট করা নেই।</div>';
+      return;
+    }
+    list.innerHTML = schedules.map(s => `
+      <div class="item-row ${s.done ? 'done' : ''}">
+        <div onclick="toggleScheduleDone(${s.id})" style="cursor:pointer; flex:1;">
+          <b>${s.time}</b> — ${s.title}
+        </div>
+        <button class="speak-mini" onclick="deleteSchedule(${s.id})">✕</button>
+      </div>
+    `).join('');
+  }
+  function speakScheduleSummary() {
+    const pending = schedules.filter(s => !s.done);
+    if (!pending.length) {
+      speakText('আজকের সব কাজ সম্পন্ন হয়ে গেছে বা কোনো রুটিন সেট করা নেই।');
+      return;
+    }
+    const summary = pending.map(s => `${s.time} টায় ${s.title}`).join(', ');
+    speakText(`আপনার আজকের বাকি রুটিন হলো: ${summary}`);
+  }
+  function checkScheduleReminders() {
+    const now = new Date();
+    const curHM = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+    schedules.forEach(s => {
+      if (!s.done && !s.alerted && s.time === curHM) {
+        s.alerted = true;
+        saveSchedules();
+        const alertMsg = `⏰ রিমাইন্ডার: এখন ${s.time} — ${s.title}-এর সময় হয়েছে!`;
+        addMessage('ai', alertMsg);
+        speakText(alertMsg);
+      }
+    });
+  }
+
+  // --- COUNTER & TIMER ---
+  function saveCounter() {
+    localStorage.setItem('m15_counter', JSON.stringify(counter));
+    renderCounter();
+  }
+  function setCounterGoal() {
+    const subj = document.getElementById('targetSubject').value.trim() || 'Accountancy / Study';
+    const goal = parseInt(document.getElementById('targetGoal').value, 10);
+    if (!goal || goal <= 0) return;
+    counter = { subject: subj, done: 0, total: goal, seconds: 0 };
+    saveCounter();
+  }
+  function incrementCounter(step) {
+    if (!counter.total) return;
+    counter.done = Math.min(counter.total, counter.done + step);
+    saveCounter();
+    if (counter.done === counter.total) {
+      speakText(`দারুণ! আপনার ${counter.subject}-এর ${counter.total}টি টার্গেট পূর্ণ হয়েছে!`);
+    }
+  }
+  function resetCounter() {
+    clearInterval(timerInterval);
+    timerInterval = null;
+    document.getElementById('timerBtn').innerText = '▶️ টাইমার চালু';
+    counter = { subject: '', done: 0, total: 0, seconds: 0 };
+    saveCounter();
+  }
+  function toggleTimer() {
+    const btn = document.getElementById('timerBtn');
+    if (timerInterval) {
+      clearInterval(timerInterval);
+      timerInterval = null;
+      btn.innerText = '▶️ টাইমার চালু';
+    } else {
+      btn.innerText = '⏸️ বিরতি';
+      timerInterval = setInterval(() => {
+        counter.seconds++;
+        localStorage.setItem('m15_counter', JSON.stringify(counter));
+        updateTimerText();
+      }, 1000);
+    }
+  }
+  function updateTimerText() {
+    const h = String(Math.floor(counter.seconds / 3600)).padStart(2, '0');
+    const m = String(Math.floor((counter.seconds % 3600) / 60)).padStart(2, '0');
+    const s = String(counter.seconds % 60).padStart(2, '0');
+    document.getElementById('timerDisplay').innerText = `⏱️ সেশন টাইমার: ${h}:${m}:${s}`;
+  }
+  function renderCounter() {
+    document.getElementById('counterLabel').innerText = counter.subject ? `বিষয়: ${counter.subject}` : 'কোনো টার্গেট সেট করা নেই';
+    document.getElementById('counterDone').innerText = counter.done;
+    document.getElementById('counterTotal').innerText = counter.total;
+    document.getElementById('countBadge').innerText = `${counter.done}/${counter.total}`;
+    const pct = counter.total ? Math.round((counter.done / counter.total) * 100) : 0;
+    document.getElementById('counterBar').style.width = pct + '%';
+    updateTimerText();
+  }
+
+  // --- CALENDAR ---
+  function formatDateKey(d) {
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  }
+  function changeCalMonth(delta) {
+    calDate.setMonth(calDate.getMonth() + delta);
+    renderCalendar();
+  }
+  function goCalToday() {
+    calDate = new Date();
+    selectedDateStr = formatDateKey(calDate);
+    renderCalendar();
+  }
+  function selectCalDate(dateStr) {
+    selectedDateStr = dateStr;
+    renderCalendar();
+  }
+  function addCalendarEvent() {
+    const inp = document.getElementById('calEventInput');
+    const val = inp.value.trim();
+    if (!val) return;
+    if (!calEvents[selectedDateStr]) calEvents[selectedDateStr] = [];
+    calEvents[selectedDateStr].push(val);
+    localStorage.setItem('m15_calevents', JSON.stringify(calEvents));
+    inp.value = '';
+    renderCalendar();
+  }
+  function deleteCalendarEvent(idx) {
+    if (!calEvents[selectedDateStr]) return;
+    calEvents[selectedDateStr].splice(idx, 1);
+    if (!calEvents[selectedDateStr].length) delete calEvents[selectedDateStr];
+    localStorage.setItem('m15_calevents', JSON.stringify(calEvents));
+    renderCalendar();
+  }
+  function renderCalendar() {
+    const year = calDate.getFullYear();
+    const month = calDate.getMonth();
+    const monthNames = ['জানুয়ারি', 'ফেব্রুয়ারি', 'মার্চ', 'এপ্রিল', 'মে', 'জুন', 'জুলাই', 'আগস্ট', 'সেপ্টেম্বর', 'অক্টোবর', 'নভেম্বর', 'ডিসেম্বর'];
+    document.getElementById('calMonthYear').innerText = `${monthNames[month]} ${year}`;
+
+    const grid = document.getElementById('calGrid');
+    const dayNames = ['রবি', 'সোম', 'মঙ্গল', 'বুধ', 'বৃহ', 'শুক্র', 'শনি'];
+    let html = dayNames.map(d => `<div class="cal-day-name">${d}</div>`).join('');
+
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const todayStr = formatDateKey(new Date());
+
+    for (let i = 0; i < firstDay; i++) {
+      html += `<div class="cal-cell empty"></div>`;
+    }
+    for (let day = 1; day <= daysInMonth; day++) {
+      const dStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      const isToday = dStr === todayStr ? 'today' : '';
+      const isSel = dStr === selectedDateStr ? 'selected' : '';
+      const hasDot = (calEvents[dStr] && calEvents[dStr].length) ? '<span class="cal-dot"></span>' : '';
+      html += `<div class="cal-cell ${isToday} ${isSel}" onclick="selectCalDate('${dStr}')">${day}${hasDot}</div>`;
+    }
+    grid.innerHTML = html;
+
+    document.getElementById('selectedDateLabel').innerText = selectedDateStr;
+    const evList = document.getElementById('calEventList');
+    const items = calEvents[selectedDateStr] || [];
+    if (!items.length) {
+      evList.innerHTML = '<div style="font-size:12px; color:var(--text-muted);">এই তারিখে কোনো ইভেন্ট নেই।</div>';
+    } else {
+      evList.innerHTML = items.map((ev, i) => `
+        <div class="item-row">
+          <span>📌 ${ev}</span>
+          <button class="speak-mini" onclick="deleteCalendarEvent(${i})">✕</button>
+        </div>
+      `).join('');
+    }
+  }
+
+  // --- CALCULATOR ---
+  let calcStr = '';
+  function calcAppend(ch) {
+    calcStr += ch;
+    document.getElementById('calcExp').innerText = calcStr;
+  }
+  function calcClear() {
+    calcStr = '';
+    document.getElementById('calcExp').innerText = '';
+    document.getElementById('calcRes').innerText = '0';
+  }
+  function calcBack() {
+    calcStr = calcStr.slice(0, -1);
+    document.getElementById('calcExp').innerText = calcStr;
+  }
+  function calcEval() {
+    if (!calcStr) return;
+    try {
+      const sanitized = calcStr.replace(/[^0-9+\-*/.%()]/g, '');
+      const res = Function('"use strict";return (' + sanitized + ')')();
+      const formatted = Number.isFinite(res) ? Number(res.toFixed(6)) : 'Error';
+      document.getElementById('calcRes').innerText = formatted;
+      calcStr = String(formatted);
+    } catch (e) {
+      document.getElementById('calcRes').innerText = 'Error';
+    }
+  }
+  function calcPercentOp(factor) {
+    calcEval();
+    const cur = parseFloat(document.getElementById('calcRes').innerText);
+    if (!isNaN(cur)) {
+      const val = Number((cur * factor).toFixed(2));
+      document.getElementById('calcRes').innerText = val;
+      calcStr = String(val);
+    }
+  }
+  function calcSqrt() {
+    calcEval();
+    const cur = parseFloat(document.getElementById('calcRes').innerText);
+    if (!isNaN(cur) && cur >= 0) {
+      const val = Number(Math.sqrt(cur).toFixed(6));
+      document.getElementById('calcRes').innerText = val;
+      calcStr = String(val);
+    }
+  }
+  function calcSquare() {
+    calcEval();
+    const cur = parseFloat(document.getElementById('calcRes').innerText);
+    if (!isNaN(cur)) {
+      const val = Number((cur * cur).toFixed(6));
+      document.getElementById('calcRes').innerText = val;
+      calcStr = String(val);
+    }
+  }
+  function sendCalcToChat() {
+    const res = document.getElementById('calcRes').innerText;
+    switchTab('chat');
+    const inp = document.getElementById('userInput');
+    inp.value = `ক্যালকুলেটর রেজাল্ট: ${res} — `;
+    inp.focus();
+  }
+</script>
+</body>
+</html>
